@@ -47,7 +47,16 @@ class MySql:
         result = cursor.fetchone()
         cursor.close()
         conn.close()
-        return result
+        # 导入namedtuple模块，将数据库返回的值封装在namedtuple模块中，以后可以使用key来访问元组的值
+        # 同时也方便维护
+        from collections import namedtuple
+        fileds = (
+        "id", "section", "case_name", "url", "method", "header", "request_data", "file", "delay", "dependency_id",
+        "dependency_response", "dependency_fragment", "use_fragment", "expect_result", "actual_result", "enable",
+        "result", "comment")
+        mytuple = namedtuple("mytuple", fileds)
+        ret = mytuple._make(result)
+        return ret
 
     def write_to_mysql(self, case_id, content):
         # 现在只支持通过id写入字典格式的数据
