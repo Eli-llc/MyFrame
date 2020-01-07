@@ -1,0 +1,1 @@
+insert into testcases values(1, "login", "login", "http://192.168.21.40/api/login", "post", '{"Content-Type": "application/json;charset=UTF-8"}', '{"loginName":"JMeter","password":"E10ADC3949BA59ABBE56E057F20F883E"}', null, null, null, null, null, null, null, null, null, null, null);

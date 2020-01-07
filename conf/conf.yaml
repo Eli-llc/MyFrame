@@ -1,0 +1,16 @@
+# 测试用例数据存储的mysql配置
+mysql:
+  host: "192.168.21.65"
+  port: 3306
+  user: "root"
+  password: "User@123"
+  database: "mytest"
+  table: "testcases"
+
+# 测试环境机器的信息
+testSystem:
+  proto: "http"
+  host: "192.168.21.40"
+  port: "9090"
+  loginName: "JMeter"
+  password: "E10ADC3949BA59ABBE56E057F20F883E"
