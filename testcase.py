@@ -14,7 +14,7 @@ class TestCase:
     def params():
         mysql = MySql()
         data = mysql.get_data_by_id(1)
-        url = str(data.url)
+        url = data.url
         method = data.method
         headers = json.loads(data.header)
         payload = data.request_data
