@@ -27,11 +27,11 @@ class TestCase:
         headers.update(cookie)
         payload = data.request_data
         files = data.file or None
-        if case_id == 3:
-            files = "files = {}".format(files)
-            print(files)
-            exec(files)
-            print(files, type(files))
+        if files:
+            s = "files = {}".format(files)
+            d = {}
+            exec(s, d)
+            files = d["files"]
         if method == "post":
             response = requests.post(url=url, data=payload, headers=headers, files=files)
         elif method == "get":
