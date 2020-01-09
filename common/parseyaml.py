@@ -15,8 +15,8 @@ class ParseYaml:
 
     def parse_yaml(self):
         conf_list = []
-        with open(self.yaml_file, encoding="utf-8") as yaml_file:
-            conf = yaml.safe_load_all(yaml_file)
+        with open(self.yaml_file, encoding="utf-8") as conf_file:
+            conf = yaml.safe_load_all(conf_file)
             for i in conf:
                 conf_list.append(i)
         return conf_list
@@ -29,7 +29,7 @@ class ParseYaml:
                 ret = conf[key]
         if len(ret) == 0:
             print("No such config in {}".format(self.yaml_file))
-            sys.exit(1)
+            return
         return ret
 
 

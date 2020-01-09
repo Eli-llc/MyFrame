@@ -1,6 +1,6 @@
 import pymysql
 import sys
-import common.parseyaml
+from common.parseyaml import ParseYaml
 
 
 class MySql:
@@ -12,7 +12,7 @@ class MySql:
     """
 
     def __init__(self):
-        conf_obj = common.parseyaml.ParseYaml()
+        conf_obj = ParseYaml()
         conf = conf_obj.get_conf("mysql")
         self.host = conf["host"]
         self.port = conf["port"]
@@ -53,10 +53,12 @@ class MySql:
         fileds = (
         "id", "section", "case_name", "url", "method", "header", "request_data", "file", "delay", "dependency_id",
         "dependency_response", "dependency_fragment", "use_fragment", "expect_result", "actual_result", "enable",
-        "result", "comment")
+        "result", "last_execute_time", "comment")
         mytuple = namedtuple("mytuple", fileds)
-        ret = mytuple._make(result)
-        return ret
+        if len(result) == len(fileds):
+            return mytuple._make(result)
+        print("The length of namedtuple and mysql is not equal!")
+        sys.exit()
 
     def write_to_mysql(self, case_id, content):
         # 现在只支持通过id写入字典格式的数据
@@ -66,27 +68,25 @@ class MySql:
         if entry_len == 0:
             print("Entry not found.")
             sys.exit(1)
-        elif entry_len > 1:
-            print("Too many entries match.")
-            sys.exit(1)
         # 解析输入的content（是一个字典），把每一个键值对根据数据的结构，更新到数据库中。
         # 比如：{"KEY1":"VALUE1"} ,则更新数据库case_id行中，列名为KEY1的列的值为VALUE1
         if not isinstance(content, dict):
             print("Input data is not dict.")
-            sys.exit(2)
+            return
         # 写入数据
         # 获取mysql链接
+        elif 0 == len(content):
+            print("Input data length is 0. Need not update.")
+            return
         conn = self.connect()
         cursor = conn.cursor()
         # 循环更新传入数据到数据库
-        key_value = ['{} = "{}"'.format(key, value) for key, value in content.items()]
+        key_value = ["{} = '{}'".format(key, value) for key, value in content.items()]
         update_str = ', '.join(key_value)
-        if len(update_str) >= 3:
-            sql = "update {} set {} where id = {};".format(self.table, update_str, case_id)
-            cursor.execute(sql)
-            conn.commit()
-        else:
-            print("update string no set params.\nCancel operation.")
+        sql = "update {} set {} where id = {};".format(self.table, update_str, case_id)
+        # print(sql)
+        cursor.execute(sql)
+        conn.commit()
 
         # 关闭连接
         cursor.close()
@@ -99,27 +99,28 @@ class MySql:
         cursor.execute(sql)
         sql = "use {};".format(self.database)
         cursor.execute(sql)
-        sql = """CREATE TABLE IF NOT EXISTS testcases(\
+        sql = 'CREATE TABLE IF NOT EXISTS {}(\
             id int primary key auto_increment,\
             section varchar(255) not null,\
             case_name varchar(265) not null,\
-            url varchar(512) not null,\
+            url varchar(1023) not null,\
             method varchar(20) not null default "post" check (method in ("post", "get", "delete", "put")),\
             header varchar(255) not null,\
-            request_data varchar(255),\
+            request_data varchar(2047),\
             file varchar(255),\
-            delay int(8) DEFAULT 0,
+            delay int(8) DEFAULT 0,\
             dependency_id int default null,\
             dependency_response varchar(512),\
             dependency_fragment varchar(255),\
             use_fragment varchar(255),\
             expect_result varchar(255),\
-            actual_result varchar(255),\
+            actual_result varchar(2047),\
             enable tinyint(1) default 1 check (enable in (0, 1)),\
             result varchar(20),\
-            comment varchar(255)
-        )CHARACTER SET utf8;
-        """
+            last_execute_time datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\
+            comment varchar(255)\
+        )CHARACTER SET utf8;\
+        '.format(self.table)
         cursor.execute(sql)
         # url = common.parseyaml.compose_url("/api/login")
         # sql = "INSERT INTO testcases VALUES(NULL, {}, {}, {url}, {method}, {header}, {request_data}, {delay},\
@@ -130,3 +131,16 @@ class MySql:
         conn.commit()
         cursor.close()
         conn.close()
+
+    def get_case_ids(self):
+        conn = self.connect()
+        sql = "select id, enable from {};".format(self.table)
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        cases = cursor.fetchall()
+        cases_enabled = []
+        for case in cases:
+            if 1 == case[1]:
+                cases_enabled.append(case[0])
+        return cases_enabled
+
