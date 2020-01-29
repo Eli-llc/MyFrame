@@ -1,7 +1,12 @@
 import os
 import yaml
+import json
+
+from common.log import logger
+from common.error import MyError
 
 yaml_file = "../conf/conf.yaml"
+logger = logger()
 
 
 class ParseYaml:
@@ -11,7 +16,8 @@ class ParseYaml:
 
     def __init__(self):
         yaml_file_abspath = os.path.join(os.path.dirname(__file__), yaml_file)
-        self.yaml_file = yaml_file_abspath
+        self.yaml_file = os.path.abspath(yaml_file_abspath)
+        logger.info("Using config file: {}".format(self.yaml_file))
 
     def parse_yaml(self):
         conf_list = []
@@ -19,6 +25,7 @@ class ParseYaml:
             conf = yaml.safe_load_all(conf_file)
             for i in conf:
                 conf_list.append(i)
+        logger.info(json.dumps(conf_list))
         return conf_list
 
     def get_conf(self, key):
@@ -27,9 +34,12 @@ class ParseYaml:
         for conf in conf_list:
             if key in conf.keys():
                 ret = conf[key]
+                logger.info("Return config {} from {}:\nType: {}\nContent: {}".format(key, self.yaml_file, type(ret),
+                                                                                      json.dumps(ret)))
+                break
         if len(ret) == 0:
-            print("No such config in {}".format(self.yaml_file))
-            return
+            message = "Config {} is empty or not defined in {}.".format(key, self.yaml_file)
+            raise MyError(message)
         return ret
 
 
