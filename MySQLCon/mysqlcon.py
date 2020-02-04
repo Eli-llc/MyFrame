@@ -47,7 +47,7 @@ class MySql:
             logger.error(
                 "Connection info:\n\thost: {host}\n\tuser: {user}\n\tpassword: {password}\n\tdatabase: {database}".format(
                     host=self.host, user=self.user, password=self.password, database=self.database)
-                )
+            )
             sys.exit()
         return conn
 
@@ -96,7 +96,7 @@ class MySql:
             logger.error("The length of namedtuple and mysql is not equal!")
             sys.exit()
 
-    def write_to_mysql(self, case_id, content):
+    def update_mysql(self, case_id, content):
         # 现在只支持通过id写入字典格式的数据
         # 如果后期需要，可以通过id和给出的列表，更新固定的某些列
         logger.info("Write content: {} to case_id: {}".format(content, case_id))
@@ -148,7 +148,7 @@ class MySql:
             request_data varchar(2047),\
             file varchar(255),\
             delay int(8) DEFAULT 0,\
-            dependency_id int default null,\
+            dependency_id varchar(20) default null,\
             dependency_response varchar(512),\
             dependency_fragment varchar(255),\
             use_fragment varchar(255),\

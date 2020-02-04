@@ -22,6 +22,7 @@ class TestCase:
             sr_data = requests.get(url=url, data=payload, headers=headers)
         return sr_data
 
+
 mysql = MySql()
 data = mysql.get_data_by_id(1)
 """
@@ -33,9 +34,9 @@ data = mysql.get_data_by_id(1)
 """
 flag = "abc"
 headers = data[10]
-dependency_fragment = data[11] # "token"
+dependency_fragment = data[11]  # "token"
 use_fragment = data[12]
-pattern = re.compile(r"\$"+dependency_fragment)
+pattern = re.compile(r"\$" + dependency_fragment)
 result = re.sub(pattern, flag, use_fragment)
 # if "Cookie" in headers.keys():
 #     headers["Cookie"] += token

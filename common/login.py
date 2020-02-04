@@ -12,7 +12,7 @@ def _login():
     payload = json.dumps({"loginName": conf["loginName"], "password": conf["password"]})
     response = requests.post(url=url, data=payload, headers=headers)
     response_dict = json.loads(response.content)
-    cookie = {"Cookie": "refiner_access_token="+response_dict['entity']["hash"]}
+    cookie = {"Cookie": "refiner_access_token=" + response_dict['entity']["hash"]}
     return cookie
 
 

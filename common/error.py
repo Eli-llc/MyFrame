@@ -1,6 +1,5 @@
 from common.log import logger
 
-
 logger = logger("MyError")
 
 
@@ -15,19 +14,21 @@ class MyError(Exception):
 
 class ConfKeyError(MyError):
     def __init__(self, message):
-        MyError.__init__(message)
+        MyError.__init__(self, message)
 
 
 class FormatError(MyError):
     def __init__(self, message):
-        MyError.__init__(message)
+        MyError.__init__(self, message)
 
 
 class MethodError(MyError):
     def __init__(self, message):
-        MyError.__init__(message)
+        MyError.__init__(self, message)
 
 
 class CompareResultError(MyError):
     def __init__(self, message):
-        MyError.__init__(message)
+        MyError.__init__(self, message)
+
+
